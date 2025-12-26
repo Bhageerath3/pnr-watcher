@@ -43,7 +43,12 @@ def main():
     last = read_last_status()
 
     if last is None:
-        print(f"Initial status: {current}")
+        msg = (
+            "ℹ️ PNR STATUS CHECK (first run)\n\n"
+            f"Current status: {current}"
+        )
+        print(msg)
+        send_telegram(msg)
         write_last_status(current)
         return
 
@@ -57,7 +62,13 @@ def main():
         send_telegram(msg)
         write_last_status(current)
     else:
-        print(f"No change — Current Status: {current}")
+        msg = (
+            "✅ PNR STATUS CHECK\n\n"
+            f"No change\n"
+            f"Current status: {current}"
+        )
+        print(msg)
+        send_telegram(msg)
 
 # def main():
 #     booking, current = get_current_status()

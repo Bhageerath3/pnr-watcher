@@ -34,27 +34,40 @@ def write_last_status(status):
         f.write(status)
 
 
+# def main():
+#     booking, current = get_current_status()
+#     last = read_last_status()
+
+#     if last is None:
+#         print(f"Initial status: {current}")
+#         write_last_status(current)
+#         return
+
+#     if current != last:
+#         msg = (
+#             "🚨 PNR STATUS CHANGED!\n\n"
+#             f"Previous: {last}\n"
+#             f"Current : {current}"
+#         )
+#         print(msg)
+#         send_telegram(msg)
+#         write_last_status(current)
+#     else:
+#         print(f"No change — Current Status: {current}")
+
 def main():
     booking, current = get_current_status()
     last = read_last_status()
 
-    if last is None:
-        print(f"Initial status: {current}")
-        write_last_status(current)
-        return
+    msg = (
+        "🧪 TEST ALERT (every 5 minute)\n\n"
+        f"Current status: {current}"
+    )
 
-    if current != last:
-        msg = (
-            "🚨 PNR STATUS CHANGED!\n\n"
-            f"Previous: {last}\n"
-            f"Current : {current}"
-        )
-        print(msg)
-        send_telegram(msg)
-        write_last_status(current)
-    else:
-        print(f"No change — Current Status: {current}")
+    print(msg)
+    send_telegram(msg)
 
+    write_last_status(current)
 
 if __name__ == "__main__":
     main()

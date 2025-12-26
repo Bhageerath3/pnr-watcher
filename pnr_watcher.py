@@ -1,29 +1,32 @@
-import time
 from pnr_scraper import get_current_status
+import os
 
-CHECK_INTERVAL = 60 * 60  # 1 hour
-last_status = None
+STATUS_FILE = "last_status.txt"
 
-print("📡 PNR Status Watcher started (checks every 1 hour)")
+def read_last_status():
+    if os.path.exists(STATUS_FILE):
+        with open(STATUS_FILE, "r") as f:
+            return f.read().strip()
+    return None
 
-while True:
-    try:
-        booking, current = get_current_status()
+def write_last_status(status):
+    with open(STATUS_FILE, "w") as f:
+        f.write(status)
 
-        if last_status is None:
-            print(f"Initial status: {current}")
-            last_status = current
+def main():
+    booking, current = get_current_status()
+    last_status = read_last_status()
 
-        elif current != last_status:
-            print("\n🚨 STATUS CHANGED!")
-            print(f"Previous: {last_status}")
-            print(f"Current : {current}\n")
-            last_status = current
+    if last_status is None:
+        print(f"Initial status: {current}")
+    elif current != last_status:
+        print("🚨 STATUS CHANGED!")
+        print(f"Previous: {last_status}")
+        print(f"Current : {current}")
+    else:
+        print(f"No change — Current Status: {current}")
 
-        else:
-            print(f"No change — Current Status: {current}")
+    write_last_status(current)
 
-    except Exception as e:
-        print("⚠️ Error while checking PNR:", e)
-
-    time.sleep(CHECK_INTERVAL)
+if __name__ == "__main__":
+    main()

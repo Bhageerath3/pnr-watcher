@@ -23,8 +23,12 @@ jobs:
           pip install selenium webdriver-manager
 
       - name: Run PNR watcher
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python pnr_watcher.py
+
 
       - name: Commit status file if changed
         run: |

@@ -1,9 +1,10 @@
 name: PNR Status Watcher 2
 
 on:
+  workflow_dispatch:
+  push:
   schedule:
     - cron: "*/5 * * * *"
-  workflow_dispatch:
 
 jobs:
   check-pnr:

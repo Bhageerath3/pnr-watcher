@@ -1,4 +1,4 @@
-name: PNR Status Watcher
+name: PNR Status Watcher 2
 
 on:
   schedule:

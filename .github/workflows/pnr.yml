@@ -1,9 +1,9 @@
-name: PNR Status Watcher
+name: PNR Status Watcher TEST
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
-  workflow_dispatch:
 
 jobs:
   check-pnr:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -29,7 +29,7 @@ jobs:
         run: |
           python pnr_watcher.py
 
-      - name: Commit status file if changed
+      - name: Commit status file
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"

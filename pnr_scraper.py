@@ -5,10 +5,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-PNR = "4430098831"
-URL = f"https://www.railyatri.in/pnr-status/{PNR}"
 
-def get_current_status():
+def get_current_status(pnr):
+
+    url = f"https://www.railyatri.in/pnr-status/{pnr}"
+
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -19,7 +20,7 @@ def get_current_status():
     )
 
     wait = WebDriverWait(driver, 20)
-    driver.get(URL)
+    driver.get(url)
 
     try:
         wait.until(
@@ -35,14 +36,23 @@ def get_current_status():
         booking_status = status_blocks[0].text
         current_status = status_blocks[1].text
 
-        return booking_status, current_status
+        return {
+            "pnr": pnr,
+            "booking": booking_status,
+            "current": current_status
+        }
 
     finally:
         driver.quit()
 
 
-# Run standalone (optional)
+# Optional standalone testing
 if __name__ == "__main__":
-    booking, current = get_current_status()
-    print("Booking Status :", booking)
-    print("Current Status :", current)
+
+    test_pnr = "4430098831"
+
+    result = get_current_status(test_pnr)
+
+    print("PNR:", result["pnr"])
+    print("Booking Status:", result["booking"])
+    print("Current Status:", result["current"])

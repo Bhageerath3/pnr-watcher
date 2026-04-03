@@ -2,7 +2,7 @@ name: PNR Status Watcher
 
 on:
   schedule:
-    - cron: "0 2-18 * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install selenium webdriver-manager
+          pip install selenium webdriver-manager requests
 
       - name: Run PNR watcher
         env:
@@ -28,7 +28,6 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python pnr_watcher.py
-
 
       - name: Commit status file if changed
         run: |

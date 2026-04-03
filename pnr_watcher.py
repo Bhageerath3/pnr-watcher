@@ -4,85 +4,134 @@ from pnr_scraper import get_current_status
 
 STATUS_FILE = "last_status.txt"
 
-# Read secrets from environment (GitHub Actions / local env)
+# Your PNR dictionary
+PNR_LIST = {
+    "4335882785": "Telangana SF Express | HYD Deccan 06:00 (4 May) → New Delhi 08:00 (5 May)",
+    "4548059789": "Rajadhani Express | Howrah 09:00 (4 May) → Delhi 12:00 (5 May)",
+    "2949425962": "Garib Rath Express | Mumbai 10:00 (4 May) → Kolkata 14:00 (5 May)",
+    "4755835470": "Shatabdi Express | Delhi 08:00 (4 May) → Mumbai 12:00 (5 May)",
+    "2153367387": "Intercity Express | Chennai 11:00 (4 May) → Bangalore 15:00 (5 May)"
+}
+
+# Telegram secrets
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 
 def send_telegram(message: str):
+
     if not BOT_TOKEN or not CHAT_ID:
         print("⚠️ Telegram credentials not set")
         return
 
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
     payload = {
         "chat_id": CHAT_ID,
         "text": message
     }
+
     requests.post(url, data=payload)
 
 
 def read_last_status():
-    if os.path.exists(STATUS_FILE):
-        with open(STATUS_FILE, "r") as f:
-            return f.read().strip()
-    return None
+
+    data = {}
+
+    if not os.path.exists(STATUS_FILE):
+        return data
+
+    with open(STATUS_FILE, "r") as f:
+        for line in f:
+
+            line = line.strip()
+
+            if not line:
+                continue
+
+            if "|" not in line:
+                continue
+
+            pnr, status = line.split("|", 1)
+
+            data[pnr] = status
+
+    return data
 
 
-def write_last_status(status):
+def write_last_status(status_dict):
+
     with open(STATUS_FILE, "w") as f:
-        f.write(status)
+
+        for pnr, status in status_dict.items():
+            f.write(f"{pnr}|{status}\n")
 
 
 def main():
+
     from datetime import datetime, timezone
 
     print("⏱ Run time (UTC):", datetime.now(timezone.utc))
 
-    booking, current = get_current_status()
-    last = read_last_status()
+    last_status = read_last_status()
+    new_status = {}
 
-    if last is None:
-        msg = (
-            "ℹ️ PNR STATUS CHECK (first run)\n\n"
-            f"Current status: {current}"
-        )
-        print(msg)
-        send_telegram(msg)
-        write_last_status(current)
-        return
+    changes = []
+    no_change = []
 
-    if current != last:
-        msg = (
-            "🚨 PNR STATUS CHANGED!\n\n"
-            f"Previous: {last}\n"
-            f"Current : {current}"
-        )
-        print(msg)
-        send_telegram(msg)
-        write_last_status(current)
+    for pnr, description in PNR_LIST.items():
+
+        print("\n----------------------------------")
+        print("Checking:", description)
+        print("PNR:", pnr)
+
+        try:
+
+            data = get_current_status(pnr)
+
+            booking = data["booking"]
+            current = data["current"]
+
+            new_status[pnr] = current
+
+            previous = last_status.get(pnr)
+
+            if previous is None:
+                no_change.append(
+                    f"{description}\nPNR: {pnr}\nCurrent status: {current}"
+                )
+
+            elif previous != current:
+                changes.append(
+                    f"{description}\nPNR: {pnr}\nPrevious: {previous}\nCurrent : {current}"
+                )
+
+            else:
+                no_change.append(
+                    f"{description}\nPNR: {pnr}\nCurrent status: {current}"
+                )
+
+        except Exception as e:
+
+            print("Error checking PNR:", pnr)
+            print(e)
+
+    # Send combined Telegram message
+
+    if changes:
+
+        msg = "🚨 PNR STATUS CHANGED!\n\n" + "\n\n".join(changes)
+
     else:
-        msg = (
-            "✅ PNR STATUS CHECK\n\n"
-            f"No change\n"
-            f"Current status: {current}"
-        )
-        print(msg)
-        send_telegram(msg)
 
-# def main():
-#     booking, current = get_current_status()
-#     last = read_last_status()
+        msg = "✅ PNR STATUS CHECK\n\nNo change\n\n" + "\n\n".join(no_change)
 
-#     msg = (
-#         "🧪 TEST ALERT (every 5 minute)\n\n"
-#         f"Current status: {current}"
-#     )
+    print(msg)
 
-#     print(msg)
-#     send_telegram(msg)
+    send_telegram(msg)
 
-#     write_last_status(current)
+    write_last_status(new_status)
+
 
 if __name__ == "__main__":
     main()

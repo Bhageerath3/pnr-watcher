@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
   schedule:
-    - cron: "*/5 6-23 * * *"
+    - cron: "*/5 1-18 * * *"
 
 jobs:
   check-pnr:

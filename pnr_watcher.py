@@ -6,8 +6,6 @@ STATUS_FILE = "last_status.txt"
 
 # Your PNR dictionary
 PNR_LIST = {
-    "4335882785": "Telangana SF Express | HYD Deccan 06:00 (4 May) → New Delhi 08:00 (5 May)",
-    "4548059789": "Sampark Kranti  | KCG 08:15 (4 May) → Nizamuddin 08:10 (5 May)",
     "2949425962": "Telangana Express | New Delhi 16:00 (5 May) → HYD Deccan 17:10 (6 May)",
     "4755835470": "Dakshin SF Express | HYD Deccan 23:00 (16 May) → Nizamuddin 03:45 (18 May)",
     "2153367387": "Telangana Express | New Delhi 16:00 (18 May) → HYD Deccan 17:10 (19 May)"
